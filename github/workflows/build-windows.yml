@@ -1,0 +1,71 @@
+name: Windows-Build (.exe)
+
+# Baut mit PyInstaller eine eigenständige Windows-EXE.
+# - manuell auslösbar (workflow_dispatch)
+# - bei jedem Tag v* zusätzlich als Release-Asset veröffentlicht
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write        # nötig, um bei Tags ein Release anzulegen
+
+jobs:
+  test:
+    name: Tests (headless)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+      - name: Smoke-Tests ausführen
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest tests/ -q
+
+  build-windows:
+    name: Windows-EXE bauen
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+      - name: Symbolsatz erzeugen (falls nicht im Repo)
+        run: python -m taktik.symbols.generator symbole
+      - name: EXE bauen
+        run: pyinstaller --noconfirm taktik.spec
+      - name: Artefakt hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Taktik-windows-exe
+          path: dist/Taktik.exe
+          if-no-files-found: error
+      - name: Release-Asset anhängen (nur bei Tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Taktik ${GITHUB_REF_NAME}" \
+            --generate-notes \
+            "dist/Taktik.exe" \
+          || gh release upload "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --clobber "dist/Taktik.exe"
