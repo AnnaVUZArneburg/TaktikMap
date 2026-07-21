@@ -384,7 +384,8 @@ class MainWindow(QMainWindow):
         if stored and Path(stored).is_dir():
             self._load_symbol_dir(str(stored))
             return
-        bundled = Path(__file__).resolve().parents[2] / "symbole"
+        from taktik import resource_path
+        bundled = resource_path("symbole")
         if bundled.is_dir():
             self._load_symbol_dir(str(bundled))
 
