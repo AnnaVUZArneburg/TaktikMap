@@ -1,7 +1,8 @@
 # Taktik – Taktische Lagekarte
 
 Plattformübergreifendes Python-Desktop-Tool zur Darstellung und Bearbeitung
-taktischer Lagen auf Karten nach Bundeswehr- und THW-Konventionen.
+taktischer Lagen auf Karten nach Bundeswehr- und THW-Konventionen
+(Umsetzung des [Lastenhefts](Lastenheft)).
 
 ![Screenshot: Hauptfenster mit Beispiel-Lage](docs/screenshot.png)
 
@@ -84,6 +85,25 @@ Beim ersten Start wird automatisch der mitgelieferte Symbolordner
 `symbole/` geladen; über *Datei → Symbolordner öffnen…* kann jederzeit ein
 eigenes Verzeichnis gewählt werden.
 
+## Windows-EXE (PyInstaller)
+
+Eine eigenständige Windows-`.exe` baut GitHub Actions automatisch:
+
+- **Manuell**: Reiter *Actions → „Windows-Build (.exe)" → Run workflow*.
+  Das fertige `Taktik.exe` liegt anschließend als Artefakt beim Lauf.
+- **Release**: Ein Tag `v*` (z. B. `git tag v0.1.0 && git push --tags`)
+  baut die EXE und hängt sie an ein automatisch erstelltes Release an.
+
+Lokal (auf jeder Plattform) geht es ebenso:
+
+```bash
+pip install -r requirements.txt pyinstaller
+pyinstaller --noconfirm taktik.spec
+```
+
+Ergebnis: `dist/Taktik.exe` (Windows) bzw. `dist/Taktik` (Linux/macOS) –
+der Symbolsatz `symbole/` ist eingebettet.
+
 ## Symbolordner-Struktur
 
 ```
@@ -109,9 +129,20 @@ Optionale Metadaten je Symbol (`<name>.json` neben `<name>.svg/.png`):
 }
 ```
 
+## Tests
+
+```bash
+QT_QPA_PLATFORM=offscreen python -m pytest tests/ -v
+```
+
+Die Smoke-Tests decken die Abnahmekriterien des Lastenhefts ab
+(Kartenimport, Drehung, Symboleinlesen, Platzierung, Größenkennzeichnung,
+Projekt speichern/laden, PNG-Export).
+
 ## Architektur
 
-Modulare Trennung von UI, Kartenlogik und Symbolverwaltung:
+Modulare Trennung von UI, Kartenlogik und Symbolverwaltung
+(nicht-funktionale Anforderung „Wartbarkeit“):
 
 ```
 taktik/
