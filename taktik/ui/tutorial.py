@@ -15,7 +15,7 @@ from typing import List
 
 from PySide6.QtCore import QByteArray, Qt
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtGui import QPainter, QPixmap
+from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -96,6 +96,24 @@ GUIDE_SVG = """
 </svg>
 """
 
+
+def guide_pixmap(size: int = 128) -> QPixmap:
+    """Rendert das Maskottchen „Safety" als quadratisches QPixmap."""
+    renderer = QSvgRenderer(QByteArray(GUIDE_SVG.encode("utf-8")))
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    renderer.render(painter)
+    painter.end()
+    return pixmap
+
+
+def guide_icon() -> QIcon:
+    """Anwendungs-/Fenstersymbol „Safety" in mehreren Auflösungen."""
+    icon = QIcon()
+    for size in (16, 24, 32, 48, 64, 128, 256):
+        icon.addPixmap(guide_pixmap(size))
+    return icon
 
 
 @dataclass
@@ -227,13 +245,7 @@ class TutorialDialog(QDialog):
 
     @staticmethod
     def _guide_pixmap(size: int = 128) -> QPixmap:
-        renderer = QSvgRenderer(QByteArray(GUIDE_SVG.encode("utf-8")))
-        pixmap = QPixmap(size, size)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        return pixmap
+        return guide_pixmap(size)
 
     def _make_page(self, step: Step) -> QWidget:
         page = QWidget()

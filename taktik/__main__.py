@@ -9,11 +9,13 @@ def main() -> int:
     from taktik import APP_NAME
     from taktik.ui.main_window import MainWindow
     from taktik.ui.theme import apply_theme
+    from taktik.ui.tutorial import guide_icon
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName("Taktik")
     apply_theme(app)
+    app.setWindowIcon(guide_icon())      # Maskottchen „Safety" als App-Icon
 
     window = MainWindow()
     window.show()
