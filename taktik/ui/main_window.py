@@ -42,6 +42,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(APP_NAME)
         self.resize(1400, 900)
 
+        from taktik.ui.tutorial import guide_icon
+        self.setWindowIcon(guide_icon())
+
         self.store = ProjectStore()
         self.scene = MapScene(self.store)
         self.view = MapView(self.scene)

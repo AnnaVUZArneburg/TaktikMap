@@ -102,7 +102,15 @@ pyinstaller --noconfirm taktik.spec
 ```
 
 Ergebnis: `dist/Taktik.exe` (Windows) bzw. `dist/Taktik` (Linux/macOS) –
-der Symbolsatz `symbole/` ist eingebettet.
+der Symbolsatz `symbole/` ist eingebettet, das EXE-Icon ist das
+Maskottchen „Safety" (`packaging/taktik.ico`).
+
+Das Icon lässt sich aus dem Maskottchen neu erzeugen (falls es sich
+ändert):
+
+```bash
+python packaging/make_icon.py
+```
 
 ## Symbolordner-Struktur
 
